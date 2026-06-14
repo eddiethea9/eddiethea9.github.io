@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Simulasi Ujian EPS-TOPIK</title>
+  <style>
+    :root {
+      --primary-color: rgb(255, 255, 255);
+      --secondary-color: #f8f9fa;
+      --hover-color: rgba(112, 148, 185, 0.12);
+      --text-color: #7094b9;
+      --light-text: #bbbaba;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      font-family: 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
+      background: linear-gradient(180deg,
+          #121212 0%,
+          #1B2835 50%,
+          #121212 100%);
+      color: var(--text-color);
+      text-align: center;
+      padding: 5px 5px;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 1200px;
+      background-color: transparent;
+      padding: 15px 15px 15px;
+      display: flex;
+      flex-direction: column;
+      height: 90vh;
+    }
+
+    h1 {
+      font-size: 1.5rem;
+      margin-bottom: 20px;
+      color: var(--text-color);
+      font-weight: 600;
+    }
+
+    .scrollable-buttons {
+      flex: 1;
+      overflow-y: auto;
+
+      border: 1px solid #716F6F;
+      border-radius: 20px;
+
+      background: rgba(255, 255, 255, 0);
+      backdrop-filter: blur(5px);
+
+      padding: 20px;
+
+      margin: 10px 0;
+
+      overflow-x: hidden;
+
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+
+    .scrollable-buttons::-webkit-scrollbar {
+      display: none;
+    }
+
+    .buttons-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(70px, 1fr));
+      gap: 12px;
+      width: 100%;
+      margin-bottom: 10px;
+      margin-top: 10px;
+    }
+
+    .btn {
+      width: 100%;
+      height: 0;
+      padding-bottom: 100%;
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.2rem;
+      font-weight: 600;
+      background-color: transparent;
+      color: #bbbaba;
+      border: 1px solid #7094b9;
+      border-radius: 12px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: 0 2px 8px rgba(118, 120, 128, 0.2);
+    }
+
+    .btn span {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+    }
+
+    .btn:hover {
+      background-color: var(--hover-color);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(74, 107, 255, 0.3);
+    }
+
+    .btn:active {
+      transform: scale(1.2);
+      background-color: rgba(112, 148, 185, 0.12);
+      box-shadow: 0 0 15px rgba(112, 148, 185, 0.5);
+    }
+
+    .btn.disabled-btn,
+    .btn:disabled {
+      opacity: 0.6;
+      background-color: transparent;
+      color: #595b5e;
+      cursor: not-allowed;
+      position: relative;
+      border: 1px solid #3d5268;
+    }
+
+    .btn.disabled-btn span,
+    .btn:disabled span {
+      display: flex !important;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+      font-size: 1.2rem;
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 100%;
+    }
+
+    .btn.disabled-btn span::after,
+    .btn:disabled span::after {
+      content: "🔒";
+      font-size: 0.7em;
+      display: block;
+      margin-top: 2px;
+      opacity: 0.9;
+    }
+
+    .btn.disabled-btn span::before,
+    .btn:disabled span::before {
+      content: none;
+    }
+
+    .footer {
+      margin-top: auto;
+      color: var(--light-text);
+      font-size: 1rem;
+      padding-top: 20px;
+    }
+
+    .scrollable-buttons::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    .scrollable-buttons::-webkit-scrollbar-track {
+      background: #f1f1f1;
+      border-radius: 10px;
+    }
+
+    .scrollable-buttons::-webkit-scrollbar-thumb {
+      background: #c1c1c1;
+      border-radius: 10px;
+    }
+
+    .scrollable-buttons::-webkit-scrollbar-thumb:hover {
+      background: #a8a8a8;
+    }
+
+    @media (min-width: 769px) and (max-width: 1024px) {
+      .buttons-grid {
+        grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+        gap: 12px;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .buttons-grid {
+        grid-template-columns: repeat(4, 1fr);
+        gap: 10px;
+      }
+
+      .btn {
+        font-size: 1.2rem;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .buttons-grid {
+        gap: 8px;
+      }
+
+      .btn {
+        font-size: 1rem;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <h1>PACKAGE LIST</h1>
+
+    <div class="scrollable-buttons">
+      <div class="buttons-grid">
+        <button class="btn" onclick="window.location.href='page1.html'"><span>1</span></button>
+        <button class="btn" onclick="window.location.href='page2.html'"><span>2</span></button>
+        <button class="btn" onclick="window.location.href='page3.html'"><span>3</span></button>
+        <button class="btn" onclick="window.location.href='page4.html'"><span>4</span></button>
+        <button class="btn" onclick="window.location.href='page5.html'"><span>5</span></button>
+        <button class="btn disabled-btn" disabled><span>6</span></button>
+        <button class="btn disabled-btn" disabled><span>7</span></button>
+        <button class="btn disabled-btn" disabled><span>8</span></button>
+        <button class="btn disabled-btn" disabled><span>9</span></button>
+        <button class="btn disabled-btn" disabled><span>10</span></button>
+        <button class="btn disabled-btn" disabled><span>11</span></button>
+        <button class="btn disabled-btn" disabled><span>12</span></button>
+        <button class="btn disabled-btn" disabled><span>13</span></button>
+        <button class="btn disabled-btn" disabled><span>14</span></button>
+        <button class="btn disabled-btn" disabled><span>15</span></button>
+        <button class="btn disabled-btn" disabled><span>16</span></button>
+        <button class="btn disabled-btn" disabled><span>17</span></button>
+        <button class="btn disabled-btn" disabled><span>18</span></button>
+        <button class="btn disabled-btn" disabled><span>19</span></button>
+        <button class="btn disabled-btn" disabled><span>20</span></button>
+        <button class="btn disabled-btn" disabled><span>21</span></button>
+        <button class="btn disabled-btn" disabled><span>22</span></button>
+        <button class="btn disabled-btn" disabled><span>23</span></button>
+        <button class="btn disabled-btn" disabled><span>24</span></button>
+        <button class="btn disabled-btn" disabled><span>25</span></button>
+        <button class="btn disabled-btn" disabled><span>26</span></button>
+        <button class="btn disabled-btn" disabled><span>27</span></button>
+        <button class="btn disabled-btn" disabled><span>28</span></button>
+        <button class="btn disabled-btn" disabled><span>29</span></button>
+        <button class="btn disabled-btn" disabled><span>30</span></button>
+        <button class="btn disabled-btn" disabled><span>31</span></button>
+        <button class="btn disabled-btn" disabled><span>32</span></button>
+        <button class="btn disabled-btn" disabled><span>33</span></button>
+        <button class="btn disabled-btn" disabled><span>34</span></button>
+        <button class="btn disabled-btn" disabled><span>35</span></button>
+        <button class="btn disabled-btn" disabled><span>36</span></button>
+        <button class="btn disabled-btn" disabled><span>37</span></button>
+        <button class="btn disabled-btn" disabled><span>38</span></button>
+        <button class="btn disabled-btn" disabled><span>39</span></button>
+        <button class="btn disabled-btn" disabled><span>40</span></button>
+        <button class="btn disabled-btn" disabled><span>41</span></button>
+        <button class="btn disabled-btn" disabled><span>42</span></button>
+        <button class="btn disabled-btn" disabled><span>43</span></button>
+        <button class="btn disabled-btn" disabled><span>44</span></button>
+        <button class="btn disabled-btn" disabled><span>45</span></button>
+        <button class="btn disabled-btn" disabled><span>46</span></button>
+        <button class="btn disabled-btn" disabled><span>47</span></button>
+        <button class="btn disabled-btn" disabled><span>48</span></button>
+        <button class="btn disabled-btn" disabled><span>49</span></button>
+        <button class="btn disabled-btn" disabled><span>50</span></button>
+        <button class="btn disabled-btn" disabled><span>51</span></button>
+        <button class="btn disabled-btn" disabled><span>52</span></button>
+        <button class="btn disabled-btn" disabled><span>53</span></button>
+        <button class="btn disabled-btn" disabled><span>54</span></button>
+        <button class="btn disabled-btn" disabled><span>55</span></button>
+        <button class="btn disabled-btn" disabled><span>56</span></button>
+        <button class="btn disabled-btn" disabled><span>57</span></button>
+        <button class="btn disabled-btn" disabled><span>58</span></button>
+        <button class="btn disabled-btn" disabled><span>59</span></button>
+        <button class="btn disabled-btn" disabled><span>60</span></button>
+        <button class="btn disabled-btn" disabled><span>61</span></button>
+        <button class="btn disabled-btn" disabled><span>62</span></button>
+        <button class="btn disabled-btn" disabled><span>63</span></button>
+        <button class="btn disabled-btn" disabled><span>64</span></button>
+        <button class="btn disabled-btn" disabled><span>65</span></button>
+        <button class="btn disabled-btn" disabled><span>66</span></button>
+        <button class="btn disabled-btn" disabled><span>67</span></button>
+        <button class="btn disabled-btn" disabled><span>68</span></button>
+        <button class="btn disabled-btn" disabled><span>69</span></button>
+        <button class="btn disabled-btn" disabled><span>70</span></button>
+        <button class="btn disabled-btn" disabled><span>71</span></button>
+        <button class="btn disabled-btn" disabled><span>72</span></button>
+        <button class="btn disabled-btn" disabled><span>73</span></button>
+        <button class="btn disabled-btn" disabled><span>74</span></button>
+        <button class="btn disabled-btn" disabled><span>75</span></button>
+        <button class="btn disabled-btn" disabled><span>76</span></button>
+        <button class="btn disabled-btn" disabled><span>77</span></button>
+        <button class="btn disabled-btn" disabled><span>78</span></button>
+        <button class="btn disabled-btn" disabled><span>79</span></button>
+        <button class="btn disabled-btn" disabled><span>80</span></button>
+        <button class="btn disabled-btn" disabled><span>81</span></button>
+        <button class="btn disabled-btn" disabled><span>82</span></button>
+        <button class="btn disabled-btn" disabled><span>83</span></button>
+        <button class="btn disabled-btn" disabled><span>84</span></button>
+        <button class="btn disabled-btn" disabled><span>85</span></button>
+        <button class="btn disabled-btn" disabled><span>86</span></button>
+        <button class="btn disabled-btn" disabled><span>87</span></button>
+        <button class="btn disabled-btn" disabled><span>88</span></button>
+        <button class="btn disabled-btn" disabled><span>89</span></button>
+        <button class="btn disabled-btn" disabled><span>90</span></button>
+        <button class="btn disabled-btn" disabled><span>91</span></button>
+        <button class="btn disabled-btn" disabled><span>92</span></button>
+        <button class="btn disabled-btn" disabled><span>93</span></button>
+        <button class="btn disabled-btn" disabled><span>94</span></button>
+        <button class="btn disabled-btn" disabled><span>95</span></button>
+        <button class="btn disabled-btn" disabled><span>96</span></button>
+        <button class="btn disabled-btn" disabled><span>97</span></button>
+        <button class="btn disabled-btn" disabled><span>98</span></button>
+        <button class="btn disabled-btn" disabled><span>99</span></button>
+        <button class="btn disabled-btn" disabled><span>100</span></button>
+      </div>
+    </div>
+
+    <p class="footer">UBT Eps-Topik</p>
+  </div>
+</body>
+
+</html>

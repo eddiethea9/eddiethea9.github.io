@@ -1,0 +1,2669 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, viewport-fit=contain">
+    <title>Quiz 40 Questions</title>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #6eb0f1;
+            --correct-color: #4CAF50;
+            --incorrect-color: #f44336;
+            --warning-color: #ff9800;
+            --text-color: #1a1a1a;
+            --light-gray: #f5f5f5;
+            --border-color: rgba(0, 0, 0, 0.4);
+            --header-height: 40px;
+            --footer-height: 40px;
+            --base-font-size: 20px;
+            --mobile-font-size: 16px;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        html,
+        body {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            font-family: 'Noto Sans KR', Arial, sans-serif;
+            font-size: var(--base-font-size);
+            color: var(--text-color);
+            background-color: white;
+        }
+
+        .header-bar {
+            display: grid;
+            grid-template-columns: 30% 20% 5% 25% 5% 15%;
+            position: fixed;
+            top: 0;
+            width: 100%;
+            height: var(--header-height);
+            background-color: white;
+            text-align: center;
+            font-size: var(--base-font-size);
+            color: black;
+            border-bottom: 1px solid var(--border-color);
+            z-index: 999;
+        }
+
+        .header-bar div {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-right: 1px solid var(--border-color);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            padding: 0 2px;
+        }
+
+        .header-bar div:nth-child(1),
+        .header-bar div:nth-child(2),
+        .header-bar div:nth-child(4) {
+            background-color: #0000001a;
+        }
+
+        .header-bar div:nth-child(1) {
+            border-left: 1px solid var(--border-color);
+        }
+
+        .header-bar div:nth-child(3) {
+            background-color: #84afbd;
+        }
+
+        .header-bar div:nth-child(5) {
+            background-color: #e47a6e;
+        }
+
+        .header-bar div:nth-child(6) {
+            background-color: var(--primary-color);
+        }
+
+        .container {
+            display: grid;
+            grid-template-columns: 55% 45%;
+            margin-top: var(--header-height);
+            height: calc(100vh - var(--header-height) - var(--footer-height));
+            height: calc(100svh - var(--header-height) - var(--footer-height));
+        }
+
+        .soal {
+            padding: 10px;
+            padding-left: 20px;
+            overflow-y: auto;
+            border-left: 1px solid var(--border-color);
+            border-right: 1px solid var(--border-color);
+            background-color: white;
+            font-size: var(--base-font-size);
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .jawaban {
+            padding: 10px;
+            overflow-y: auto;
+            border-left: 1px solid var(--border-color);
+            border-right: 1px solid var(--border-color);
+            background-color: white;
+            font-size: var(--base-font-size);
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .pertanyaan {
+            padding: 5px;
+            display: none;
+        }
+
+        .pertanyaan.active {
+            display: block;
+        }
+
+        .pertanyaan img,
+        .jawaban-gambar,
+        .review-image {
+            display: block;
+            max-width: 60%;
+            height: auto;
+            max-height: 25vh;
+            object-fit: contain;
+            margin: 10px auto;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .pertanyaan img:hover,
+        .jawaban-gambar:hover,
+        .review-image:hover {
+            transform: scale(1.03);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background-color: #000000;
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 999999;
+            touch-action: none;
+        }
+
+        .zoom-area {
+            width: 100vw;
+            height: 100vh;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            touch-action: none;
+        }
+
+        .zoom-area img {
+            width: 100%;
+            height: auto;
+            max-width: 100vw;
+            max-height: 100vh;
+            object-fit: contain;
+        }
+
+        .btn-tutup {
+            position: absolute;
+            top: 16px;
+            right: 20px;
+            background-color: #fff;
+            color: #000;
+            border: none;
+            border-radius: 50%;
+            width: 36px;
+            height: 36px;
+            font-size: 20px;
+            font-weight: bold;
+            cursor: pointer;
+            z-index: 100000;
+        }
+
+        .jawaban-item {
+            display: flex;
+            align-items: center;
+            padding: 12px 16px;
+            border-bottom: 1px solid var(--border-color);
+            cursor: pointer;
+        }
+
+        .jawaban-item:last-child {
+            border-bottom: none;
+        }
+
+        .lingkaran {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background-color: white;
+            color: black;
+            border: 1px solid black;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 16px;
+            cursor: pointer;
+            transition: all 0.2s;
+            flex-shrink: 0;
+            font-size: var(--base-font-size);
+        }
+
+        .jawaban-item.selected .lingkaran {
+            background-color: black;
+            color: white;
+        }
+
+        .teks-jawaban {
+            flex-grow: 1;
+            white-space: normal;
+            overflow-wrap: break-word;
+            min-width: 0;
+            font-size: var(--base-font-size);
+        }
+
+        .footer-button {
+            display: flex;
+            justify-content: space-between;
+            background-color: #ffffff;
+            border-top: 1px solid var(--border-color);
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+            height: var(--footer-height);
+            z-index: 999;
+        }
+
+        .footer-button button {
+            flex: 1;
+            max-width: 200px;
+            height: 100%;
+            font-size: 16px;
+            border: none;
+            border-left: 1px solid var(--border-color);
+            border-right: 1px solid var(--border-color);
+            background-color: #0000001a;
+            color: black;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .footer-button button:hover {
+            background-color: #00000030;
+        }
+
+        .footer-button button:disabled {
+            background-color: #cccccc;
+            cursor: not-allowed;
+            opacity: 0.6;
+        }
+
+        .footer-button .tengah {
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            cursor: pointer;
+            padding-left: 10px;
+            padding-right: 10px;
+            max-width: calc(100% - 220px);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .footer-button .tengah span {
+            margin: 0 5px;
+        }
+
+        .pertanyaan h3,
+        .pertanyaan p,
+        .teks-jawaban,
+        .lingkaran,
+        .deskripsi-soal {
+            font-size: var(--base-font-size);
+            line-height: 1.4;
+        }
+
+        .pertanyaan h3 {
+            margin: 8px 0;
+            margin-bottom: 12px;
+        }
+
+        .pertanyaan p {
+            margin: 8px 0;
+            line-height: 1.4;
+        }
+
+        .deskripsi-soal {
+            line-height: 1.4;
+            margin: 8px 0;
+            background-color: white;
+        }
+
+        .text-box,
+        .text-box-2 {
+            display: block;
+            max-width: 90%;
+            margin: 10px auto;
+            padding: 10px;
+            background-color: white;
+            border: 1px solid #cacaca;
+            font-size: var(--base-font-size);
+            line-height: 1.4;
+        }
+
+        .text-box-2 {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+        }
+
+        .audio-container,
+        .audio-control {
+            display: none;
+            text-align: center;
+            margin: 10px auto;
+            max-width: 160px;
+            overflow: hidden;
+        }
+
+        .custom-audio-player,
+        .jawaban-audio-player {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 10px auto;
+            gap: 10px;
+        }
+
+        .custom-audio-player button,
+        .jawaban-audio-player button,
+        .review-audio-btn {
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            padding: 0;
+        }
+
+        .custom-audio-player button:disabled,
+        .jawaban-audio-player button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .custom-audio-player button img,
+        .jawaban-audio-player button img,
+        .review-audio-btn img {
+            width: 100%;
+            height: 100%;
+            border: 2px solid rgb(22, 31, 170);
+            border-radius: 10px;
+        }
+
+        .audio-icon {
+            width: 70px;
+            height: 70px;
+            border: 2px solid rgb(22, 31, 170);
+            border-radius: 15px;
+            box-sizing: border-box;
+            overflow: hidden;
+            padding: 5px;
+            cursor: pointer;
+            transition: border-color 0.3s;
+        }
+
+        .jawaban-item .jawaban-content {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            width: 100%;
+        }
+
+        .jawaban-gambar {
+            max-width: 90px;
+            max-height: 55px;
+            border-radius: 4px;
+        }
+
+        .jawaban-audio-player {
+            justify-content: flex-start;
+            margin-left: 10px;
+        }
+
+        .jawaban-audio-player button {
+            width: 50px;
+            height: 50px;
+        }
+
+        .jawaban-audio-player button img {
+            border-radius: 10px;
+        }
+
+        .review-question {
+            margin: 20px;
+            padding: 20px;
+            border: 1px solid #2c2c2c;
+            border-radius: 8px;
+            background-color: white;
+            font-size: var(--base-font-size);
+        }
+
+        .review-option-content,
+        .review-question-content,
+        .review-options,
+        .review-option {
+            font-size: var(--base-font-size);
+            line-height: 1.4;
+        }
+
+        .review-option {
+            display: flex;
+            align-items: center;
+            padding: 10px;
+            margin-bottom: 5px;
+            border-radius: 4px;
+            border: 1px solid #ddd;
+        }
+
+        .review-option.correct {
+            border: 1px solid rgba(0, 0, 0, 0.1);
+        }
+
+        .review-option.user-selected {
+            background-color: #FFEBEE;
+        }
+
+        .review-option.correct.user-selected {
+            background-color: #E8F5E9;
+        }
+
+        .review-option-number {
+            width: 25px;
+            height: 25px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 10px;
+            font-weight: bold;
+            background-color: #f5f5f5;
+            font-size: var(--base-font-size);
+            flex-shrink: 0;
+        }
+
+        .review-option.correct .review-option-number,
+        .review-option.correct.user-selected .review-option-number {
+            background-color: var(--correct-color);
+            color: white;
+        }
+
+        .review-option.user-selected .review-option-number {
+            background-color: var(--incorrect-color);
+            color: white;
+        }
+
+        .review-audio-btn {
+            width: 50px;
+            height: 50px;
+            margin: 0 10px;
+            flex-shrink: 0;
+        }
+
+        .result-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: white;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 100000;
+            overflow-y: auto;
+            padding: 15px;
+            box-sizing: border-box;
+        }
+
+        .result-content {
+            background-color: white;
+            border-radius: 10px;
+            padding: 15px;
+            max-width: 600px;
+            width: 100%;
+            max-height: 95vh;
+            overflow-y: auto;
+            position: relative;
+        }
+
+        .close-result-btn {
+            padding: 10px 20px;
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-top: 20px;
+            display: block;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .audio-transcript {
+            margin-top: 10px;
+            padding: 10px;
+            background-color: #f8f9fa;
+            border-left: 3px solid var(--primary-color);
+            font-size: 16px;
+            line-height: 1.4;
+            color: #333;
+            border-radius: 0 4px 4px 0;
+        }
+
+        .custom-dialog {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000000;
+        }
+
+        .custom-dialog-content {
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            max-width: 320px;
+            width: 90%;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            text-align: center;
+        }
+
+        .custom-dialog-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .custom-dialog-button {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .custom-dialog-confirm {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .custom-dialog-cancel {
+            background-color: var(--incorrect-color);
+            color: white;
+        }
+
+        .audio-player-container {
+            width: 100%;
+            margin-top: 8px;
+        }
+
+        .progress-container {
+            width: 100%;
+            height: 6px;
+            background-color: #ddd;
+            border-radius: 3px;
+            position: relative;
+            cursor: pointer;
+            margin-bottom: 6px;
+            transition: background-color 0.3s;
+        }
+
+        .progress-container:hover {
+            background-color: #ccc;
+        }
+
+        .progress-bar {
+            height: 100%;
+            width: 0%;
+            background-color: var(--primary-color);
+            border-radius: 3px;
+            transition: width 0.1s linear;
+        }
+
+        .time-container {
+            display: flex;
+            justify-content: space-between;
+            font-size: 12px;
+            color: #666;
+        }
+
+        .current-time {
+            font-weight: bold;
+        }
+
+        @media screen and (min-width: 993px) {}
+
+        @media screen and (max-width: 768px) and (orientation: portrait) {
+            :root {
+                --base-font-size: 18px;
+                --header-height: 44px;
+                --footer-height: 85px;
+            }
+
+            .header-bar {
+                grid-template-columns: 28% 20% 7% 23% 7% 15%;
+                font-size: 11px;
+                height: var(--header-height);
+            }
+
+            .container {
+                grid-template-columns: 100%;
+                grid-template-rows: 45% 55%;
+                margin-top: var(--header-height);
+                height: calc(100vh - var(--header-height) - var(--footer-height));
+                height: calc(100svh - var(--header-height) - var(--footer-height));
+            }
+
+            .soal {
+                border-right: none;
+                border-bottom: 1px solid var(--border-color);
+                padding-left: 10px;
+            }
+
+            .pertanyaan img,
+            .jawaban-gambar,
+            .review-image {
+                max-width: 85%;
+                max-height: 20vh;
+            }
+
+            .text-box,
+            .text-box-2 {
+                max-width: 95%;
+                margin: 8px auto;
+            }
+
+            .footer-button {
+                display: grid !important;
+                grid-template-columns: 1fr 1fr !important;
+                grid-template-rows: auto auto !important;
+                height: var(--footer-height) !important;
+                padding: 6px !important;
+                gap: 6px !important;
+            }
+
+            .footer-button button {
+                font-size: 14px !important;
+                width: 100% !important;
+                max-width: 100% !important;
+                height: 36px !important;
+                border: 1px solid var(--border-color) !important;
+                border-radius: 4px !important;
+                box-sizing: border-box !important;
+                position: relative !important;
+                top: auto !important;
+                left: auto !important;
+                right: auto !important;
+                transform: none !important;
+            }
+
+            .footer-button button:first-child {
+                grid-row: 2 !important;
+                grid-column: 1 !important;
+            }
+
+            .footer-button button:last-child {
+                grid-row: 2 !important;
+                grid-column: 2 !important;
+            }
+
+            .footer-button .tengah {
+                grid-row: 1 !important;
+                grid-column: 1 / span 2 !important;
+                background-color: transparent !important;
+                border: none !important;
+                box-shadow: none !important;
+                display: flex !important;
+                align-items: center;
+                justify-content: center;
+                text-align: center;
+                padding: 2px 0 !important;
+                pointer-events: auto !important;
+            }
+        }
+
+        @media screen and (max-width: 992px) and (orientation: landscape) {
+            :root {
+                --base-font-size: 18px;
+                --header-height: 38px;
+                --footer-height: 42px;
+            }
+
+            .header-bar {
+                grid-template-columns: 30% 20% 5% 25% 5% 15%;
+                font-size: 15px;
+                height: var(--header-height);
+            }
+
+            .container {
+                grid-template-columns: 50% 50%;
+                grid-template-rows: 1fr;
+                margin-top: var(--header-height);
+                height: calc(100vh - var(--header-height) - var(--footer-height));
+                height: calc(100svh - var(--header-height) - var(--footer-height));
+            }
+
+            .soal,
+            .jawaban {
+                height: 100%;
+            }
+
+            .pertanyaan img,
+            .jawaban-gambar,
+            .review-image {
+                max-width: 80%;
+                max-height: 40vh;
+            }
+
+            .text-box,
+            .text-box-2 {
+                max-width: 95%;
+                margin: 5px auto;
+                padding: 8px;
+            }
+
+            .footer-button button {
+                font-size: 15px;
+            }
+        }
+
+        @media screen and (max-width: 400px) {
+            .header-bar {
+                font-size: 9px;
+            }
+
+            .footer-button button {
+                font-size: 11px;
+            }
+
+            .footer-button .tengah {
+                max-width: calc(100% - 150px);
+            }
+        }
+
+        u {
+            text-decoration: underline;
+        }
+
+        b,
+        strong {
+            font-weight: 700 !important;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="overlay" id="zoomOverlay">
+        <button class="btn-tutup" onclick="tutupZoom()">✕</button>
+        <div class="zoom-area">
+            <img id="gambarZoom" src="" alt="Zoom Gambar">
+        </div>
+    </div>
+
+    <div class="header-bar">
+        <div>Reading (20 Questions)</div>
+        <div>Whole Questions</div>
+        <div>40</div>
+        <div>Remaining Questions</div>
+        <div>40</div>
+        <div>50 : 00</div>
+    </div>
+
+    <div class="container">
+        <div class="soal"></div>
+        <div class="jawaban"></div>
+    </div>
+
+    <div class="footer-button">
+        <button onclick="prevQuestion()">Previous Question</button>
+        <button class="tengah" onclick="showQuestionList()">Question <span id="current-question">1</span> of 40</button>
+        <button onclick="nextQuestion()">Next Question</button>
+    </div>
+
+    <script>
+        let pinchStartDist = 0;
+        let currentScale = 0.8;
+        let startDist = 0;
+        let isDragging = false;
+        let startX = 0, startY = 0;
+        let translateX = 0, translateY = 0;
+        let currentQuestion = 1;
+        const totalQuestions = 40;
+        let remainingQuestions = 40;
+        let timerInterval;
+        let timeLeft = 50 * 60;
+        let hasShownFiveMinuteWarning = false;
+        const timerDisplay = document.querySelector('.header-bar div:nth-child(6)');
+        let quizData = {};
+        let currentReviewAudio = null;
+        let currentReviewAudioButton = null;
+        let currentProgressContainer = null;
+        let currentTimeDisplay = null;
+        let durationDisplay = null;
+        let currentProgressBar = null;
+        let currentAudio = null;
+        let audioPlayCounts = {};
+        let jawabanAudioPlayCounts = {};
+        const correctAnswers = {};
+        const userAnswers = {};
+        let score = 0;
+        const audioTranscripts = {
+
+            "21": "응급 처치를 해야 합니다.",
+
+            "22": "그 부분을 묶어 주세요.",
+
+            "23": "결혼.",
+
+            "24": "잡업장이 엉망이네요.",
+
+            "25": "이것은 무엇입니까?",
+            "25-0": "온도입니다",
+            "25-1": "무게입니다",
+            "25-2": "압력입니다",
+            "25-3": "레버입니다",
+
+            "26": "여기는 어디입니까 ?",
+            "26-0": "정형외과입니다",
+            "26-1": "피부과입니다",
+            "26-2": "성형외과입니다",
+            "26-3": "이비인후과입니다",
+
+            "27": "이 사람은 무엇을 하고 있습니까?",
+            "27-0": "문화 체험을 하고 있습니다",
+            "27-1": "자원 봉사를 하고 있습니다",
+            "27-2": "상담을 받고 있습니다",
+            "27-3": "요리 수업을 듣고 있습니다",
+
+            "28": "사진기가 얼마나 있습니까?",
+            "28-0": "5 대 있습니다",
+            "28-1": "6 대 있습니다",
+            "28-2": "5 개 있습니다",
+            "28-3": "6 개 있습니다",
+
+            "29": "공은 어디에 있습니까 ?",
+            "29-0": "박스 뒤에 있습니다",
+            "29-1": "박스 앞에 있습니다",
+            "29-2": "박스 안에 있습니다",
+            "29-3": "박스 옆에 있습니다",
+
+            "30": "반장님이 표면을 깎으라고 하셨는데 뭘로 깎아야 돼요?",
+
+            "31": "작업한 후에 뚜껑을 안 닫아 둬서 페인트가 좀 굳였어요?",
+
+            "32": "어떤 불량이 발생했어요?",
+
+            "33": "가스 냄새가 나는 것 같아요?",
+
+            "34": "나리 씨, 지금 통화할 수 있어요?",
+
+            "35": "미나 씨는 왜 한국에 왔어요?",
+
+            "36": "남 : 어디가 앞아요?<br>여 : 발을 다쳤어요.<br>남 : 피도 나요?<br>여 : 아니요, 피는 안 나요.<br>남 : 그럼 이 연고를 바른 후에 반창고를 붙이세요.<br>여 : 약은 안 먹어도 돼요?<br>남 : 네, 안 먹어도 돼요.",
+
+            "37": "남 : 나영 씨, 많이 기다렸자요? 미안해요.<br>여 : 여화가 곧 시작돼요. 빨리 들어가요.",
+
+            "38": "여 : 네, 한국 서비스 센터입니다. 무엇을 도와 드릴까요?<br>남 : 에어컨 바람이 시원하지 않았어요.<br>여 : 에어컨의 온도를 맞게 해 보셨나요? 다시 한번 확인해 주시겠어요? <br>남 : 그렇게 해 봤는데 안 돼요. 다른 문제가 있는 것 같아요.<br>여 : 그럼 고장 신고를 해 드리겠습니다. 나일 오전에 저희 직원이 연락 드리고 고치러 갈 겁니다",
+
+            "39": "여 : 진성 씨, 새로 시작한 아르바이트는 어떄요?<br>남 : 생각보더 일도 많고 힘들어요. <br>여 : 그럼 제가 일하는 편의점에서 아르바이트를 할 사람을 찾고 는데 생각 있으면 알아봐 줄게요,<br>남 : 아니요, 지금 일도 기간이 지나면 점점 나아질 것 같습니다. 좀 더 해 보려고요.",
+
+            "40": "가 : 마두 씨, 무슨 일 있어요? 얼굴이 안 좋아 보여요.<br>나 : 친구한테 전화가 왔는데 공장에서 일하다가 불을 낼 뻔했대요. 용접하다가 불꽃이 주변에 있던 상자에 튀었대요.<br>가 : 친구는 괜찮아요? 많이 놀랐겠어요. 불은 바로 껐대요?<br>나 : 다행히 옆에 있던 동료가 소화기로 진화했대요.<br>가 : 정말 큰일 날 뻔했네요. 마두 씨도 용접할 때 조심하세요. 작업을 시작하기 전에 주변에 불이 쉽게 붙을 것 같은 물건이 없는지 확인하는 거 잊지 마세요.<br>나 : 네, 항상 조심할게요.",
+        };
+
+        async function loadAudioTranscripts() {
+            try {
+                const response = await fetch('audio-transcripts.json');
+                if (!response.ok) throw new Error('Failed to load audio transcripts');
+                audioTranscripts = await response.json();
+            } catch (error) {
+                console.error('Error loading audio transcripts:', error);
+                audioTranscripts = {};
+            }
+        }
+
+        async function loadQuizData() {
+            try {
+                const response = await fetch('quiz-data.json');
+                if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+                quizData = await response.json();
+                initializeQuiz();
+            } catch (error) {
+                console.error("Gagal memuat quiz-data.json:", error);
+                useFallbackData();
+            }
+        }
+
+        function useFallbackData() {
+            quizData = {
+                questions: Array.from({ length: 40 }, (_, i) => ({
+                    id: i + 1,
+                    section: i < 20 ? "Reading" : "Listening",
+                    question: `Question ${i + 1} (${i < 20 ? "Reading" : "Listening"})`,
+                    description: `This is a sample question for number ${i + 1}`,
+                    options: ["Option 1", "Option 2", "Option 3", "Option 4"],
+                    correctAnswer: i % 4
+                }))
+            };
+
+            quizData.questions[0] = {
+                id: 1,
+                section: "Reading",
+                question: "[1 – 2] 다음 그림을 보고 맞는 단어나 문장을 고르십시오.",
+                description: "1.",
+                image: "image/1_p13.png",
+                options: ["바늘입니다.", "양모입니다.", "견입니다.", "나일론입니다."],
+                correctAnswer: 0
+            };
+
+            quizData.questions[1] = {
+                id: 2,
+                section: "Reading",
+                question: "",
+                description: "2.",
+                image: "image/2_p13.png",
+                options: ["길이를 측정하고 있습니다.", "무게를 측정하고 있습니다.", "길이를 조절하고 있습니다.", "무게를 조절하고 있습니다."],
+                correctAnswer: 0
+            };
+
+            quizData.questions[2] = {
+                id: 3,
+                section: "Reading",
+                question: "[3 – 4] 다음 질문에 답하십시오.",
+                description: "3. 다음 단어와 관계있는 것은 고르십시오.",
+                textBox2: "사포질",
+                options: ["지갑", "탁자", "공책", "구두"],
+                correctAnswer: 1
+            };
+
+            quizData.questions[3] = {
+                id: 4,
+                section: "Reading",
+                question: "",
+                description: "4. 다음 단어의 비슷말은 무엇입니까 ?",
+                textBox2: "차를 (타다)",
+                options: ["환승하다", "하찬하다", "환불하다", "승차하다"],
+                correctAnswer: 3
+            };
+
+            quizData.questions[4] = {
+                id: 5,
+                section: "Reading",
+                question: "[5 – 8] 빈칸에 들아갈 가장 알맞은 것을 고르십시오.",
+                description: "5.",
+                textBox: "우리 집 근처에 큰 공원이 있습니다. 공원 안에 ___________ 가/이 있어서 배를 탈 수도 있습니다.",
+                options: ["산맥", "폭포", "호수", "동굴"],
+                correctAnswer: 2
+            };
+
+            quizData.questions[5] = {
+                id: 6,
+                section: "Reading",
+                question: "",
+                description: "6.",
+                textBox: "한국어 능력 시험이 아주 가까운데 갑자기 급한 일이 생겨서 1 주일 정도 고향으로 __________________.",
+                options: ["보게 됐어요.", "봐도 돼요.", "가게 됐어요.", "가도 돼요."],
+                correctAnswer: 2
+            };
+
+            quizData.questions[6] = {
+                id: 7,
+                section: "Reading",
+                question: "",
+                description: "7.",
+                textBox: "추근할 때 매일 늦어서 오늘 일찍 ___________ 공장에 아무도 없었습니다.",
+                options: ["왔더니", "다녔더니", "왔거든", "다녔거든"],
+                correctAnswer: 0
+            };
+
+            quizData.questions[7] = {
+                id: 8,
+                section: "Reading",
+                question: "",
+                description: "8.",
+                textBox: "저는 우유로 만든 유제품 무엇이든 잘 먹습니다. 특히 ______________ 좋아해서 매일 빵과 함께 먹습니다.",
+                options: ["잼", "버터", "보리", "콩"],
+                correctAnswer: 1
+            };
+
+            quizData.questions[8] = {
+                id: 9,
+                section: "Reading",
+                question: "[9 – 12] 다음 질문에 답하십시오.",
+                description: "9. 다음 중 밑줄 친 부분이 맞는 문장을 고르십시오.",
+                options: ["<p>풀을 <u>베으려면</u> 낫이 있어야 돼요.</p>", "<p>전선을 <u>펴으려면</u> 플라이어가 필요해요.</p>", "<p>여권을 <u>갱신해려면</u> 신청서를 내야 돼요.</p>", "<p>보험금을 <u>받으려면</u> 통장 사본을 주셔야 해요.</p>"],
+                correctAnswer: 3
+            };
+
+            quizData.questions[9] = {
+                id: 10,
+                section: "Reading",
+                question: "",
+                description: "10. 다음 내용과 관계있는 그림을 고르십시오?",
+                textBox2: "심장의 정상적인 리듬으로유지하기 위해 사용되는 의료 기기입니다.",
+                options: [
+                    { type: 'image', value: 'image/10_1_p13.png' },
+                    { type: 'image', value: 'image/10_2_p13.png' },
+                    { type: 'image', value: 'image/10_3_p13.png' },
+                    { type: 'image', value: 'image/10_4_p13.png' }
+                ],
+                correctAnswer: 0
+            };
+
+            quizData.questions[10] = {
+                id: 11,
+                section: "Reading",
+                question: "",
+                description: "11. 다음은 나라별 외국인 근로자 수의 현황표입니다. 맞는 것은 무엇입니까?",
+                image: "image/11_p13.png",
+                options: ["한국에서 일하는 미얀마인과 네팔인 근로자 수는 같다.", "한국에서 일하는 베트남인 근로자 비율이 제일 높다.", "한국에서 일하는 캄보디아인 근로자의 수가 몽골인 근로자보다 많다.", "한국에서 일하는 외국인 중 네팔인 근로자의 비율이 가장 낮다."],
+                correctAnswer: 2
+            };
+
+            quizData.questions[11] = {
+                id: 12,
+                section: "Reading",
+                question: "",
+                description: "12. 다음 글을 읽고 내용과 같은 것을 고르십시오.",
+                image: "image/12_p13.png",
+                options: ["아파 카바르 포르그램은 중앙대사관에서 열립니다.", "누구나 무료로 전통 놀이를 해볼 수 있습니다.", "궁금한 것이 있으면 전화로 알아볼 수 있습니다.", "참가한 모든 아이들이 소정이 상품을 받습니다."],
+                correctAnswer: 2
+            };
+
+            quizData.questions[12] = {
+                id: 13,
+                section: "Reading",
+                question: "[13 – 14] 빈칸에 들어갈 가장 알맞은 것을 고르십시오.",
+                description: "13.",
+                textBox: "기숙사에서는 여러 사람이 같이 사니까 서로 배려해야 합니다. 특히 휴게실 안에서 담배를 ______________ 하세요.",
+                options: ["피우지 않도록", "버리지 않도록", "버릴 만큼", "피울 만큼"],
+                correctAnswer: 0
+            };
+
+            quizData.questions[13] = {
+                id: 14,
+                section: "Reading",
+                question: "",
+                description: "14.",
+                textBox: "소화가 잘 안 되어서 소화제를 사러 약국에 갔는데 문을 닫았습니다. 가정 비상약은 편의점에서도 _____________ 거기에 갔습니다.",
+                options: ["팔자고 해서", "사자고 해서", "판다고 해서", "산다고 해서"],
+                correctAnswer: 2
+            };
+
+            quizData.questions[14] = {
+                id: 15,
+                section: "Reading",
+                question: "[15 – 16] 다음 글을 읽고 무엇에 대한 글인지 고르십시오.",
+                description: "15.",
+                textBox: "아딧 씨는 한 달 전부터 공장에서 일하고 있습니다. 일이 어렵지 않고 공장장님도 친절하지만 같은 방을 쓰는 친구 때문에 스트레스를 받습니다. 그 친구는 아딧 씨가 방 청소를 잘 하지 않는다고 화를 냅니다. 또 아딧 씨가 시끄럽다고 짜증을 냅니다.",
+                options: ["갈등", "오해", "이해", "화해"],
+                correctAnswer: 0
+            };
+
+            quizData.questions[15] = {
+                id: 16,
+                section: "Reading",
+                question: "",
+                description: "16.",
+                textBox: "주택은 크게 단독 주택과 공동 주택이 있습니다. 단독 주택은 한 세대가 단독으로 사용하는 구조로 된 주택입니다. 공동 주택은 각 세대가 하나의 건축물 안에서 생활을 할 수 있는 구조로 된 주택입니다.",
+                options: ["한국의 공동 생활", "한국의 주거 형태", "한국의 건축 구조", "한국의 생활 변화"],
+                correctAnswer: 1
+            };
+
+            quizData.questions[16] = {
+                id: 17,
+                section: "Reading",
+                question: "17 – 18] 다음 글을 읽고 내용과 같은 것을 고르십시오.",
+                description: "17.",
+                textBox: "이번 주 월요일에 비 소식이 있습니다. 비가 그치고 나면 꽃샘추위가 찾아오 겠습니다. 주중에는 대부분 지방이 영하권으로 떨어지고 강원도에는 눈이 조금 내리다가 그치겠습니다. 하지만 토요일이 되면 기온이 올라가서 조금 따 뜻해지겠습니다. 이번 주에는 옷을 따뜻하게 입으시는 것이 좋겠습니다.",
+                options: ["토요일에는 눈이 조금 내릴 것입니다.", "주중에는 대부분 지방에 비가 내릴 것입니다.", "이번 주에는 강원도에 눈이 많이 내릴 것입니다.", "평일에는 기온이 많이 떨어져서 추워질 것입니다."],
+                correctAnswer: 3
+            };
+
+            quizData.questions[17] = {
+                id: 18,
+                section: "Reading",
+                question: "",
+                description: "18.",
+                textBox: "연료통은 자동차, 오토바이, 비행기 등 기계 장치에서 연료를 저장하는 통입니다. 연료통은 보통 가솔린, 디젤, 또는 다른 에너지원이 안전하게 보관되도록 만들어졌습니다. 연료통에 연료를 저장해 두면 엔진이 필요할 때마다 연료를 공급받아 작동할 수 있습니다. 연료통이 깨끗하고 잘 관리되어야 기계가 안전하고 효율적으로 작동할 수 있습니다.",
+                options: ["연료통은 기계 장치에서 연료를 운반하는 통입니다.", "연료통은 주로 물이나 음료를 보관하는 용기로 사용됩니다.", "연료통은 주로 가솔린, 디젤 등의 에너지원이 안전하게 보관되도록 만들어졌습니다.", "연료통은 주로 자동차에서 별로 사용하지 않습니다."],
+                correctAnswer: 2
+            };
+
+            quizData.questions[18] = {
+                id: 19,
+                section: "Reading",
+                question: "[19– 20] 다음 설명에 알맞은 어휘를 고르십시오.",
+                description: "19.",
+                textBox: "공공 장소에서 하면 안 되는 행동으로 순서를 어기고 남의 자리에 슬며시 끼어드는 행위입니다.",
+                options: ["흡연", "방해", "싸움", "새치기"],
+                correctAnswer: 3
+            };
+
+            quizData.questions[19] = {
+                id: 20,
+                section: "Reading",
+                question: "",
+                description: "20.",
+                textBox: "뜨거운 물체를 안전하게 다루기 위해 사용하는 내열성 장갑입니다. 주로 오븐에서 뜨거운 팬, 냄비, 접시 등을 꺼낼 때 손을 보호하기 위해 사용됩니다.",
+                options: ["안전 장갑", "오븐 장갑", "절단방지 장갑", "고무 장갑"],
+                correctAnswer: 1
+            };
+
+            quizData.questions[20] = {
+                id: 21,
+                section: "Listening",
+                question: "[21 – 24] 들은 것을 고르십시오.",
+                description: "21.",
+                textBox2: "응급 _________ 를 해야 합니다.",
+                audio: "audio/21_p13.mp3",
+                options: ["위치", "처치", "외치", "부치"],
+                correctAnswer: 1
+            };
+
+            quizData.questions[21] = {
+                id: 22,
+                section: "Listening",
+                question: "",
+                description: "22.",
+                textBox2: "부분을 _________주세요.",
+                audio: "audio/22_p13.mp3",
+                options: ["닦아", "묶어", "조여", "당겨"],
+                correctAnswer: 1
+            };
+
+            quizData.questions[22] = {
+                id: 23,
+                section: "Listening",
+                question: "",
+                description: "23.",
+                textBox2: "",
+                audio: "audio/23_p13.mp3",
+                options: [
+                    { type: 'image', value: 'image/23_1_p13.png' },
+                    { type: 'image', value: 'image/23_2_p13.png' },
+                    { type: 'image', value: 'image/23_3_p13.png' },
+                    { type: 'image', value: 'image/23_4_p13.png' }
+                ],
+                correctAnswer: 2
+            };
+
+            quizData.questions[23] = {
+                id: 24,
+                section: "Listening",
+                question: "",
+                description: "24.",
+                textBox2: "",
+                audio: "audio/24_p13.mp3",
+                options: [
+                    { type: 'image', value: 'image/24_1_p13.png' },
+                    { type: 'image', value: 'image/24_2_p13.png' },
+                    { type: 'image', value: 'image/24_3_p13.png' },
+                    { type: 'image', value: 'image/24_4_p13.png' }
+                ],
+                correctAnswer: 0
+            };
+
+            quizData.questions[24] = {
+                id: 25,
+                section: "Listening",
+                question: "[25 – 29] 그림을 보고 알맞은 대답을 고르십시오.",
+                description: "25. 이것은 무엇입니까 ?",
+                image: "image/25_p13.png",
+                options: [
+                    { type: 'audio', value: 'audio/25_1_p13.mp3' },
+                    { type: 'audio', value: 'audio/25_2_p13.mp3' },
+                    { type: 'audio', value: 'audio/25_3_p13.mp3' },
+                    { type: 'audio', value: 'audio/25_4_p13.mp3' }
+                ],
+                correctAnswer: 2
+            };
+
+            quizData.questions[25] = {
+                id: 26,
+                section: "Listening",
+                question: "",
+                description: "26. 여기는 어디입니까 ?",
+                image: "image/26_p13.png",
+                options: [
+                    { type: 'audio', value: 'audio/26_1_p13.mp3' },
+                    { type: 'audio', value: 'audio/26_2_p13.mp3' },
+                    { type: 'audio', value: 'audio/26_3_p13.mp3' },
+                    { type: 'audio', value: 'audio/26_4_p13.mp3' }
+                ],
+                correctAnswer: 2
+            };
+
+            quizData.questions[26] = {
+                id: 27,
+                section: "Listening",
+                question: "",
+                description: "27. 이 사람은 지금 무엇을 하고 있습니까 ?",
+                image: "image/27_p13.png",
+                options: [
+                    { type: 'audio', value: 'audio/27_1_p13.mp3' },
+                    { type: 'audio', value: 'audio/27_2_p13.mp3' },
+                    { type: 'audio', value: 'audio/27_3_p13.mp3' },
+                    { type: 'audio', value: 'audio/27_4_p13.mp3' }
+                ],
+                correctAnswer: 1
+            };
+
+            quizData.questions[27] = {
+                id: 28,
+                section: "Listening",
+                question: "",
+                description: "28. 사진기가 얼마나 있습니까?",
+                image: "image/28_p13.png",
+                options: [
+                    { type: 'audio', value: 'audio/28_1_p13.mp3' },
+                    { type: 'audio', value: 'audio/28_2_p13.mp3' },
+                    { type: 'audio', value: 'audio/28_3_p13.mp3' },
+                    { type: 'audio', value: 'audio/28_4_p13.mp3' }
+                ],
+                correctAnswer: 1
+            };
+
+            quizData.questions[28] = {
+                id: 29,
+                section: "Listening",
+                question: "",
+                description: "29. 공은 어디에 있습니까?",
+                image: "image/29_p13.png",
+                options: [
+                    { type: 'audio', value: 'audio/29_1_p13.mp3' },
+                    { type: 'audio', value: 'audio/29_2_p13.mp3' },
+                    { type: 'audio', value: 'audio/29_3_p13.mp3' },
+                    { type: 'audio', value: 'audio/29_4_p13.mp3' }
+                ],
+                correctAnswer: 2
+            };
+
+            quizData.questions[29] = {
+                id: 30,
+                section: "Listening",
+                question: "[30 – 33] 다음을 듣고 질문에 알맞은 대답을 고르십시오.",
+                description: "30.",
+                audio: "audio/30_p13.mp3",
+                options: ["표면을 아주 매끄럽게 만들었어요.", "철근을 깎을 때는 솢 조심하세요.", "이건 금속이라서 줄로 깎아야 돼요.", "줄이 공구함에 있을 거예요."],
+                correctAnswer: 2
+            };
+
+            quizData.questions[30] = {
+                id: 31,
+                section: "Listening",
+                question: "",
+                description: "31.",
+                audio: "audio/31_p13.mp3",
+                options: ["새 페인트를 가져와야겠네요.", "뚜껑을 먼저 열어야겠네요.", "페인트가 굳지 않도록 잘 섞어야 돼요.", "페인트 통하고 붓이 여기 잇어요."],
+                correctAnswer: 0
+            };
+
+            quizData.questions[31] = {
+                id: 32,
+                section: "Listening",
+                question: "",
+                description: "32.",
+                audio: "audio/32_p13.mp3",
+                options: ["불량품을 분류하고 있거든요.", "제품에 검은 줄이 생겼어요.", "제품을 여기에 쌓아 두었어요.", "깨지지 않도록 완충재를 쓰세요."],
+                correctAnswer: 1
+            };
+
+            quizData.questions[32] = {
+                id: 33,
+                section: "Listening",
+                question: "",
+                description: "33.",
+                audio: "audio/33_p13.mp3",
+                options: ["빨리 소화기로 불을 끕시다.", "빨리 흐르는 물에 눈을 씻읍시다.", "빨리 끈으로 다리를 묶읍시다.", "빨리 밸브를 잠그고 창문을 엽시다."],
+                correctAnswer: 3
+            };
+
+            quizData.questions[33] = {
+                id: 34,
+                section: "Listening",
+                question: "[34 – 35] 다음을 듣고 이어지는 말을 고르십시오.",
+                description: "34.",
+                audio: "audio/34_p13.mp3",
+                options: ["네, 지금 통화 중인데요.", "네, 나리 씨하고 자주 통화를 해요.", "아니요, 제가 지금 박에 있는데요", "아니요, 나리 씨가 잔화를 받지 않아요"],
+                correctAnswer: 2
+            };
+
+            quizData.questions[34] = {
+                id: 35,
+                section: "Listening",
+                question: "",
+                description: "35.",
+                audio: "audio/35_p13.mp3",
+                options: ["한국에 온지 벌써 3 년입니다.", "곧 고행에 돌아가는 날입니다.", "돈을 많이 벌러 한국에 왔습니다.", "한국에 가서 한국말을 조금 할 수 있어요."],
+                correctAnswer: 2
+            };
+
+            quizData.questions[35] = {
+                id: 36,
+                section: "Listening",
+                question: "[36 – 37] 잘 듣고 들은 내용과 관계있는 그림을 고르십시오.",
+                description: "36.",
+                audio: "audio/36_p13.mp3",
+                options: [
+                    { type: 'image', value: 'image/36_1_p13.png' },
+                    { type: 'image', value: 'image/36_2_p13.png' },
+                    { type: 'image', value: 'image/36_3_p13.png' },
+                    { type: 'image', value: 'image/36_4_p13.png' }
+                ],
+                correctAnswer: 2
+            };
+
+            quizData.questions[36] = {
+                id: 37,
+                section: "Listening",
+                question: "",
+                description: "37.",
+                audio: "audio/37_p13.mp3",
+                options: [
+                    { type: 'image', value: 'image/37_1_p13.png' },
+                    { type: 'image', value: 'image/37_2_p13.png' },
+                    { type: 'image', value: 'image/37_3_p13.png' },
+                    { type: 'image', value: 'image/37_4_p13.png' }
+                ],
+                correctAnswer: 2
+            };
+
+            quizData.questions[37] = {
+                id: 38,
+                section: "Listening",
+                question: "[38 – 40] 이야기를 듣고 질문에 알맞은 대답을 고르십시오.",
+                description: "38. 두 사람이 무엇에 대해 이야기하고 있는지 고르십시오.",
+                audio: "audio/38_p13.mp3",
+                options: ["고장 난 에어컨", "사고 싶은 에어컨", "서비스 센터의 위치", "서비스 센터 이용 시간"],
+                correctAnswer: 0
+            };
+
+            quizData.questions[38] = {
+                id: 39,
+                section: "Listening",
+                question: "",
+                description: "39. 대화를 듣고 내용과 같은 것을 고르십시오.",
+                audio: "audio/39_p13.mp3",
+                options: ["남자는 여자와 함께 일합니다.", "여자는 편의점에서 일하고 있습니다.", "남자는 편의점에서 일을 해 봤습니다.", "여자는 아르바이트를 안 하려고 합니다."],
+                correctAnswer: 1
+            };
+
+            quizData.questions[39] = {
+                id: 40,
+                section: "Listening",
+                question: "",
+                description: "40. 대화를 듣고 내용과 같은 것을 고르십시오.",
+                audio: "audio/40_p13.mp3",
+                options: ["마두 씨는 용접 작업할 때 다칠 뻔했습니다.", "두 사람은 지금 병원에 가려고 합니다.", "용접 작업하기 전에 주벼을 잘 확인해야 합니다.", "고향에서 전화를 받고 마두 씨 얼굴이 안 좋아 보입니다."],
+                correctAnswer: 2
+            };
+
+            initializeQuiz();
+        }
+
+        function initializeQuiz() {
+            generateQuestions();
+            generateAnswers();
+            updateCorrectAnswers();
+            showQuestion(1);
+            updateQuestionCounters();
+            startTimer();
+            updateTimerDisplay();
+        }
+
+        function generateQuestions() {
+            const soalDiv = document.querySelector('.soal');
+            soalDiv.innerHTML = '';
+
+            quizData.questions.forEach(q => {
+                const questionHTML = `
+                <div class="pertanyaan" data-id="${q.id}" style="position: relative;">
+                    <h3>${q.question}</h3>
+                    ${q.description ? `<div class="deskripsi-soal">${q.description}</div>` : ''}
+
+                    ${q.additionalText ? `
+                        <div class="teks-tambahan ${q.textPosition || 'tengah'}" 
+                            style="${q.textStyle || ''}">
+                            ${q.additionalText}
+                        </div>
+                    ` : ''}
+
+                    ${q.textBox2 ? `
+                        <div class="text-box-2">
+                            ${q.textBox2}
+                        </div>
+                    ` : ''}
+
+                    ${q.audio ? `
+                    <div id="audio-control-${q.id}" class="audio-control" style="display: block;">
+                        <div class="custom-audio-player">
+                            <img src="play-icon.png" 
+                                alt="Play" 
+                                id="play-icon-${q.id}" 
+                                class="audio-icon"
+                                onclick="playAudio(${q.id}, '${q.audio}')">
+                        </div>
+                    </div>
+                    ` : ''}
+
+                    ${q.textBox ? `
+                        <div class="text-box">
+                            ${q.textBox}
+                        </div>
+                    ` : ''}
+
+                    ${q.image ? `
+                        <div class="gambar-container">
+                            <img src="${q.image}" alt="Gambar soal ${q.id}" onclick="bukaZoom(this.src)">
+                        </div>
+                    ` : ''}
+                </div>
+                `;
+                soalDiv.insertAdjacentHTML('beforeend', questionHTML);
+            });
+        }
+
+        function underlineLastWord(sentence) {
+            const match = sentence.match(/(.+ )(.+?)$/);
+            if (!match) return sentence;
+            return `${match[1]}<u>${match[2]}</u>`;
+        }
+
+        function generateAnswers() {
+            const jawabanDiv = document.querySelector('.jawaban');
+            jawabanDiv.innerHTML = '';
+
+            quizData.questions.forEach(q => {
+                const answerHTML = `
+            <div class="jawaban-container" data-question="${q.id}" ${q.id !== 1 ? 'style="display:none;"' : ''}>
+                ${q.options.map((option, index) => {
+                    let content = '';
+
+                    if (typeof option === 'object' && option !== null) {
+                        if (option.type === 'image') {
+                            content = `
+                                <div onclick="event.stopPropagation(); bukaZoom('${option.value}')" style="cursor: pointer;">
+                                    <img src="${option.value}" class="jawaban-gambar" alt="Option ${index + 1}">
+                                </div>
+                            `;
+                        } else if (option.type === 'audio') {
+                            content = `
+                                <div class="jawaban-audio-player" id="jawaban-audio-${q.id}-${index}">
+                                    <button onclick="playJawabanAudio(${q.id}, ${index}, '${option.value}')">
+                                        <img src="play-icon.png" alt="Play" id="jawaban-play-icon-${q.id}-${index}">
+                                    </button>
+                                </div>
+                            `;
+                        } else {
+                            content = option.value || '';
+                        }
+                    } else {
+                        content = option || '';
+                    }
+
+                    return `
+                        <div class="jawaban-item">
+                            <div class="lingkaran" onclick="pilihJawaban(this)">${index + 1}</div>
+                            <div class="jawaban-content">
+                                ${content}
+                            </div>
+                        </div>
+                    `;
+                }).join('')}
+            </div>
+        `;
+                jawabanDiv.insertAdjacentHTML('beforeend', answerHTML);
+            });
+        }
+
+        function updateCorrectAnswers() {
+            quizData.questions.forEach(q => {
+                correctAnswers[q.id] = (q.correctAnswer + 1).toString();
+            });
+        }
+
+        function pilihJawaban(el) {
+            const item = el.closest(".jawaban-item");
+            const container = item.closest(".jawaban-container");
+            const questionNumber = parseInt(container.getAttribute("data-question"));
+
+            const isNewAnswer = !userAnswers.hasOwnProperty(questionNumber);
+
+            container.querySelectorAll(".jawaban-item").forEach(el => {
+                el.classList.remove("selected");
+            });
+            item.classList.add("selected");
+
+            userAnswers[questionNumber] = el.textContent.trim();
+
+            if (isNewAnswer) {
+                remainingQuestions--;
+                updateQuestionCounters();
+            }
+
+            updateNavButtons();
+        }
+
+        function bukaZoom(src) {
+            const overlay = document.getElementById("zoomOverlay");
+            const gambar = document.getElementById("gambarZoom");
+
+            overlay.style.zIndex = '1000000';
+            overlay.style.display = "flex";
+            document.body.style.overflow = "hidden";
+            gambar.src = src;
+
+            currentScale = 0.8;
+            translateX = 0;
+            translateY = 0;
+
+            gambar.style.width = '100vw';
+            gambar.style.height = '100vh';
+            gambar.style.maxWidth = '100vw';
+            gambar.style.maxHeight = '100vh';
+            gambar.style.objectFit = 'contain';
+            gambar.style.transition = 'none';
+
+            updateGambarTransform();
+
+            const zoomArea = document.querySelector('.zoom-area');
+
+            zoomArea.ontouchstart = function (e) {
+                if (e.touches.length === 2) {
+                    isDragging = false;
+                    startDist = Math.hypot(
+                        e.touches[0].pageX - e.touches[1].pageX,
+                        e.touches[0].pageY - e.touches[1].pageY
+                    );
+                } else if (e.touches.length === 1) {
+                    if (currentScale > 0.8) {
+                        isDragging = true;
+                        startX = e.touches[0].pageX - translateX;
+                        startY = e.touches[0].pageY - translateY;
+                    }
+                }
+            };
+
+            zoomArea.ontouchmove = function (e) {
+                if (e.touches.length === 2) {
+                    e.preventDefault();
+                    const currentDist = Math.hypot(
+                        e.touches[0].pageX - e.touches[1].pageX,
+                        e.touches[0].pageY - e.touches[1].pageY
+                    );
+
+                    const delta = currentDist / startDist;
+
+                    currentScale = currentScale * (delta > 1 ? 1.04 : 0.96);
+
+                    if (currentScale < 0.8) currentScale = 0.8;
+                    if (currentScale > 5) currentScale = 5;
+                    if (currentScale <= 0.82) {
+                        translateX = 0;
+                        translateY = 0;
+                    }
+
+                    updateGambarTransform();
+                    startDist = currentDist;
+                } else if (e.touches.length === 1 && isDragging) {
+                    e.preventDefault();
+                    translateX = e.touches[0].pageX - startX;
+                    translateY = e.touches[0].pageY - startY;
+                    updateGambarTransform();
+                }
+            };
+
+            zoomArea.ontouchend = function (e) {
+                if (e.touches.length < 2) startDist = 0;
+
+                if (e.touches.length === 0) {
+                    isDragging = false;
+                    if (currentScale <= 0.85) {
+                        currentScale = 0.8;
+                        translateX = 0;
+                        translateY = 0;
+
+                        gambar.style.transition = 'transform 0.2s ease-out';
+                        updateGambarTransform();
+                        setTimeout(() => { gambar.style.transition = 'none'; }, 200);
+                    }
+                }
+            };
+        }
+
+        function updateGambarTransform() {
+            const gambar = document.getElementById("gambarZoom");
+            gambar.style.transform = `translate(${translateX}px, ${translateY}px) scale(${currentScale})`;
+        }
+
+        function tutupZoom() {
+            const overlay = document.getElementById("zoomOverlay");
+            overlay.style.display = "none";
+            document.body.style.overflow = "auto";
+            isDragging = false;
+        }
+        function showQuestion(questionNumber) {
+            if (questionNumber < 1) questionNumber = 1;
+            if (questionNumber > totalQuestions) questionNumber = totalQuestions;
+
+            const readingHeader = document.querySelector('.header-bar div:nth-child(1)');
+            readingHeader.textContent = questionNumber <= 20 ? 'Reading (20 Questions)' : 'Listening (20 Questions)';
+
+            document.querySelectorAll('.pertanyaan').forEach(q => q.classList.remove('active'));
+            const questionElement = document.querySelector(`.pertanyaan[data-id="${questionNumber}"]`);
+            if (questionElement) questionElement.classList.add('active');
+
+            document.querySelectorAll('.jawaban-container').forEach(a => a.style.display = 'none');
+            const currentAnswerContainer = document.querySelector(`.jawaban-container[data-question="${questionNumber}"]`);
+            if (currentAnswerContainer) {
+                currentAnswerContainer.style.display = 'block';
+                if (userAnswers[questionNumber]) {
+                    const circles = currentAnswerContainer.querySelectorAll('.lingkaran');
+                    circles.forEach(circle => {
+                        if (circle.textContent.trim() === userAnswers[questionNumber]) {
+                            circle.closest('.jawaban-item').classList.add('selected');
+                        }
+                    });
+                }
+            }
+
+            const soalDiv = document.querySelector('.soal');
+            const jawabanDiv = document.querySelector('.jawaban');
+
+            if (soalDiv) soalDiv.scrollTop = 0;
+            if (jawabanDiv) jawabanDiv.scrollTop = 0;
+
+            stopAllAudio();
+            currentQuestion = questionNumber;
+            updateNavButtons();
+            updateCurrentQuestionDisplay();
+        }
+
+        function nextQuestion() {
+            if (currentQuestion < totalQuestions) showQuestion(currentQuestion + 1);
+        }
+
+        function prevQuestion() {
+            if (currentQuestion > 1) showQuestion(currentQuestion - 1);
+        }
+
+        function updateNavButtons() {
+            const prevBtn = document.querySelector('.footer-button button:first-child');
+            const nextBtn = document.querySelector('.footer-button button:last-child');
+
+            prevBtn.innerHTML = '<span style="font-size: 24px; font-weight: bold; line-height: 1;">&#10094;</span> &nbsp; Previous Question';
+            prevBtn.disabled = currentQuestion === 1;
+
+            if (currentQuestion === totalQuestions) {
+                nextBtn.innerHTML = 'Submit All';
+                nextBtn.onclick = finishQuiz;
+            } else {
+                nextBtn.innerHTML = 'Next Question &nbsp; <span style="font-size: 24px; font-weight: bold; line-height: 1;">&#10095;</span>';
+                nextBtn.onclick = nextQuestion;
+            }
+        }
+
+        function updateCurrentQuestionDisplay() {
+            document.getElementById('current-question').textContent = currentQuestion;
+        }
+
+        function updateQuestionCounters() {
+            document.querySelector('.header-bar div:nth-child(5)').textContent = remainingQuestions;
+            document.querySelector('.header-bar div:nth-child(3)').textContent = '40';
+        }
+
+        function showQuestionList() {
+            const questionListOverlay = document.createElement('div');
+            questionListOverlay.id = 'questionListOverlay';
+            questionListOverlay.style.position = 'fixed';
+            questionListOverlay.style.top = '0';
+            questionListOverlay.style.left = '0';
+            questionListOverlay.style.width = '100vw';
+            questionListOverlay.style.height = '100vh';
+            questionListOverlay.style.backgroundColor = 'white';
+            questionListOverlay.style.backgroundImage = 'url("logo.png")';
+            questionListOverlay.style.backgroundSize = '14% auto';
+            questionListOverlay.style.backgroundPosition = 'top center';
+            questionListOverlay.style.backgroundRepeat = 'no-repeat';
+            questionListOverlay.style.backgroundAttachment = 'fixed';
+            questionListOverlay.style.display = 'flex';
+            questionListOverlay.style.justifyContent = 'center';
+            questionListOverlay.style.alignItems = 'center';
+            questionListOverlay.style.zIndex = '10000';
+            questionListOverlay.style.overflow = 'auto';
+            questionListOverlay.style.boxSizing = 'border-box';
+            questionListOverlay.style.padding = '10px';
+
+            const questionListContainer = document.createElement('div');
+            questionListContainer.style.backgroundColor = 'transparent';
+            questionListContainer.style.padding = '20px';
+            questionListContainer.style.paddingLeft = '20px';
+            questionListContainer.style.paddingBottom = '20px';
+            questionListContainer.style.border = 'none';
+            questionListContainer.style.width = '100%';
+            questionListContainer.style.maxWidth = '1000px';
+            questionListContainer.style.maxHeight = '90vh';
+            questionListContainer.style.margin = '0 auto';
+            questionListContainer.style.overflowY = 'auto';
+            questionListContainer.style.display = 'flex';
+            questionListContainer.style.flexDirection = 'column';
+            questionListContainer.style.boxSizing = 'border-box';
+
+            const sectionsContainer = document.createElement('div');
+            sectionsContainer.style.display = 'flex';
+            sectionsContainer.style.gap = '20px';
+            sectionsContainer.style.width = '100%';
+            sectionsContainer.style.boxSizing = 'border-box';
+
+            if (window.innerHeight > window.innerWidth && window.innerWidth <= 768) {
+                sectionsContainer.style.flexDirection = 'column';
+                sectionsContainer.style.alignItems = 'center';
+            } else {
+                sectionsContainer.style.flexDirection = 'row';
+                sectionsContainer.style.justifyContent = 'space-between';
+                sectionsContainer.style.flexWrap = 'nowrap';
+            }
+
+            const readingSection = document.createElement('div');
+            readingSection.style.flex = '1';
+            readingSection.style.minWidth = '280px';
+            readingSection.style.maxWidth = '350px';
+            readingSection.style.order = '1';
+
+            const readingTitle = document.createElement('h4');
+            readingTitle.textContent = 'Reading (1-20)';
+            readingTitle.style.textAlign = 'center';
+            readingTitle.style.marginBottom = '15px';
+            readingTitle.style.color = '#333';
+            readingSection.appendChild(readingTitle);
+
+            const readingGrid = document.createElement('div');
+            readingGrid.style.display = 'grid';
+            readingGrid.style.gridTemplateColumns = 'repeat(5, 55px)';
+            readingGrid.style.gridTemplateRows = 'repeat(4, 50px)';
+            readingGrid.style.gap = '12px';
+            readingGrid.style.width = '100%';
+            readingGrid.style.justifyContent = 'center';
+
+            for (let i = 1; i <= 20; i++) {
+                const questionBtn = createQuestionButton(i);
+                questionBtn.style.width = '55px';
+                questionBtn.style.height = '50px';
+                questionBtn.style.borderRadius = '8px';
+                questionBtn.style.display = 'flex';
+                questionBtn.style.alignItems = 'center';
+                questionBtn.style.justifyContent = 'center';
+                questionBtn.style.boxSizing = 'border-box';
+                readingGrid.appendChild(questionBtn);
+            }
+
+            readingSection.appendChild(readingGrid);
+            sectionsContainer.appendChild(readingSection);
+
+            const listeningSection = document.createElement('div');
+            listeningSection.style.flex = '1';
+            listeningSection.style.minWidth = '280px';
+            listeningSection.style.maxWidth = '350px';
+            listeningSection.style.order = '2';
+
+            const listeningTitle = document.createElement('h4');
+            listeningTitle.textContent = 'Listening (21-40)';
+            listeningTitle.style.textAlign = 'center';
+            listeningTitle.style.marginBottom = '15px';
+            listeningTitle.style.color = '#333';
+            listeningSection.appendChild(listeningTitle);
+
+            const listeningGrid = document.createElement('div');
+            listeningGrid.style.display = 'grid';
+            listeningGrid.style.gridTemplateColumns = 'repeat(5, 55px)';
+            listeningGrid.style.gridTemplateRows = 'repeat(4, 50px)';
+            listeningGrid.style.gap = '12px';
+            listeningGrid.style.width = '100%';
+            listeningGrid.style.justifyContent = 'center';
+
+            for (let i = 21; i <= 40; i++) {
+                const questionBtn = createQuestionButton(i);
+                questionBtn.style.width = '55px';
+                questionBtn.style.height = '50px';
+                questionBtn.style.borderRadius = '8px';
+                questionBtn.style.display = 'flex';
+                questionBtn.style.alignItems = 'center';
+                questionBtn.style.justifyContent = 'center';
+                questionBtn.style.boxSizing = 'border-box';
+                listeningGrid.appendChild(questionBtn);
+            }
+
+            listeningSection.appendChild(listeningGrid);
+            sectionsContainer.appendChild(listeningSection);
+
+            questionListContainer.appendChild(sectionsContainer);
+
+            questionListOverlay.appendChild(questionListContainer);
+            document.body.appendChild(questionListOverlay);
+        }
+
+        function createQuestionButton(questionNumber) {
+            const questionBtn = document.createElement('button');
+            questionBtn.textContent = questionNumber;
+            questionBtn.style.width = '60px';
+            questionBtn.style.height = '40px';
+            questionBtn.style.borderRadius = '15%';
+            questionBtn.style.border = '1px solid #404040';
+            questionBtn.style.cursor = 'pointer';
+            questionBtn.style.fontWeight = 'bold';
+            questionBtn.style.transition = 'all 0.2s';
+
+            if (questionNumber === currentQuestion) {
+                questionBtn.style.backgroundColor = 'rgba(0, 0, 0, 0.1)';
+                questionBtn.style.color = 'black';
+                questionBtn.style.transform = 'none';
+                questionBtn.style.boxShadow = 'none';
+            }
+
+            if (userAnswers[questionNumber]) {
+                questionBtn.style.backgroundColor = userAnswers[questionNumber] === correctAnswers[questionNumber] ? 'black' : 'black';
+                questionBtn.style.color = 'white';
+            }
+
+            questionBtn.onclick = function () {
+                const overlay = document.getElementById('questionListOverlay');
+                if (overlay) {
+                    document.body.removeChild(overlay);
+                }
+                showQuestion(questionNumber);
+            };
+
+            questionBtn.onmouseover = function () {
+                if (questionNumber !== currentQuestion) {
+                    this.style.backgroundColor = 'none';
+                }
+            };
+
+            questionBtn.onmouseout = function () {
+                if (questionNumber !== currentQuestion) {
+                    this.style.backgroundColor = 'none';
+                }
+            };
+
+            return questionBtn;
+        }
+
+        function finishQuiz() {
+            const dialog = document.createElement('div');
+            dialog.className = 'custom-dialog';
+            dialog.innerHTML = `
+                <div class="custom-dialog-content">
+                    <h3>Konfirmasi</h3>
+                    <p>Apakah Anda yakin sudah menjawab semua soal, dan ingin menyelesaikan Ujian?</p>
+                    <div class="custom-dialog-buttons">
+                        <button class="custom-dialog-button custom-dialog-cancel">Batal</button>
+                        <button class="custom-dialog-button custom-dialog-confirm">Ya, Selesaikan</button>
+                    </div>
+                </div>
+            `;
+
+            document.body.appendChild(dialog);
+
+            dialog.querySelector('.custom-dialog-cancel').addEventListener('click', () => {
+                document.body.removeChild(dialog);
+            });
+
+            dialog.querySelector('.custom-dialog-confirm').addEventListener('click', () => {
+                if (currentAudio) {
+                    currentAudio.pause();
+                    currentAudio.currentTime = 0;
+                }
+
+                document.body.removeChild(dialog);
+                showQuizResults();
+            });
+        }
+
+        function showQuizResults() {
+            score = 0;
+            for (let i = 1; i <= totalQuestions; i++) {
+                if (userAnswers[i] && userAnswers[i] === correctAnswers[i]) {
+                    score++;
+                }
+            }
+
+            const resultOverlay = document.createElement('div');
+            resultOverlay.className = 'result-overlay';
+
+            const resultContent = document.createElement('div');
+            resultContent.className = 'result-content';
+            resultContent.innerHTML = `
+                <h2 style="color: #2c7be5; margin-bottom: 20px; text-align: center;">Results</h2>
+                <div style="display: flex; justify-content: space-around; margin-bottom: 30px;">
+                    <div style="flex: 1; text-align: center;">
+                        <h3 style="color: #4CAF50;">Reading</h3>
+                        <p>${calculateSectionScore(1, 20)}/20</p>
+                        <p>${Math.round(calculateSectionScore(1, 20) / 20 * 100)}%</p>
+                    </div>
+                    <div style="flex: 1; text-align: center;">
+                        <h3 style="color: #f44336;">Listening</h3>
+                        <p>${calculateSectionScore(21, 40)}/20</p>
+                        <p>${Math.round(calculateSectionScore(21, 40) / 20 * 100)}%</p>
+                    </div>
+                </div>
+                <h3 style="margin-bottom: 10px; text-align: center;">Total Score</h3>
+                <p style="font-size: 24px; font-weight: bold; margin-bottom: 30px; text-align: center;">${score}/${totalQuestions}</p>
+                <button id="reviewBtn" class="close-result-btn">Review All Answers</button>
+            `;
+
+            resultOverlay.appendChild(resultContent);
+            resultOverlay.appendChild(resultContent);
+            document.body.appendChild(resultOverlay);
+
+            document.getElementById('reviewBtn').addEventListener('click', () => {
+                document.body.removeChild(resultOverlay);
+                showAllQuestionsReview();
+            });
+        }
+
+        function showAllQuestionsReview() {
+            const reviewOverlay = document.createElement('div');
+            reviewOverlay.style.cssText = `
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100vw;
+                height: 100vh;
+                background-color: white;
+                overflow-y: auto;
+                z-index: 10000;
+                padding: 20px 0;
+                padding-left: 40px;
+                padding-right: 40px;
+            `;
+
+            const container = document.createElement('div');
+            container.style.cssText = `
+                max-width: 1200px;
+                margin: 0 auto;
+                padding: 0 20px;
+                box-sizing: border-box;
+            `;
+
+            const header = document.createElement('div');
+            header.style.cssText = `
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                margin-bottom: 30px;
+                padding-bottom: 15px;
+                border-bottom: 1px solid #eee;
+            `;
+
+            const title = document.createElement('h2');
+            title.textContent = 'Review All Answers';
+            title.style.cssText = `
+                color: #2c7be5;
+                font-size: 28px;
+                margin: 0;
+            `;
+            header.appendChild(title);
+            container.appendChild(header);
+
+            for (let i = 1; i <= totalQuestions; i++) {
+                if (i === 1 || i === 21) {
+                    const sectionLabel = document.createElement('h3');
+                    sectionLabel.textContent = i === 1 ? 'Reading Section (1-20)' : 'Listening Section (21-40)';
+                    sectionLabel.style.cssText = `
+                        color: ${i === 1 ? '#4CAF50' : '#f44336'};
+                        margin: 30px 0 20px;
+                        padding-bottom: 10px;
+                        border-bottom: 2px solid ${i === 1 ? '#4CAF50' : '#f44336'};
+                    `;
+                    container.appendChild(sectionLabel);
+                }
+
+                const questionData = quizData.questions.find(q => q.id === i) || {};
+                const questionDiv = document.createElement('div');
+                questionDiv.style.cssText = `
+                    background: white;
+                    border: 1px solid #e0e0e0;
+                    border-radius: 8px;
+                    padding: 30px;
+                    margin-bottom: 30px;
+                    box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+                    box-sizing: border-box;
+                `;
+
+                const questionHeader = document.createElement('div');
+                questionHeader.style.cssText = `
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: center;
+                    margin-bottom: 20px;
+                `;
+
+                const questionNumber = document.createElement('h3');
+                questionNumber.textContent = `Question ${i}`;
+                questionNumber.style.cssText = `
+                    color: #333;
+                    margin: 0;
+                `;
+
+                const answerStatus = document.createElement('span');
+                if (userAnswers[i]) {
+                    const isCorrect = userAnswers[i] == (questionData.correctAnswer + 1);
+                    answerStatus.textContent = isCorrect ? '✓ Correct' : '✗ Incorrect';
+                    answerStatus.style.cssText = `
+                        color: ${isCorrect ? '#4CAF50' : '#f44336'};
+                        font-weight: bold;
+                    `;
+                } else {
+                    answerStatus.textContent = 'Not answered';
+                    answerStatus.style.cssText = `
+                        color: #9E9E9E;
+                        font-weight: bold;
+                    `;
+                }
+
+                questionHeader.appendChild(questionNumber);
+                questionHeader.appendChild(answerStatus);
+                questionDiv.appendChild(questionHeader);
+
+                const questionContent = document.createElement('div');
+                questionContent.className = 'review-question-content';
+
+                if (questionData.question) {
+                    const questionText = document.createElement('p');
+                    questionText.style.cssText = `
+                        font-weight: bold;
+                        margin-bottom: 15px;
+                        line-height: 1.5;
+                    `;
+                    questionText.textContent = questionData.question;
+                    questionContent.appendChild(questionText);
+                }
+
+                if (questionData.description) {
+                    const descText = document.createElement('p');
+                    descText.style.cssText = `
+                        margin-bottom: 15px;
+                        line-height: 1.5;
+                    `;
+                    descText.textContent = questionData.description;
+                    questionContent.appendChild(descText);
+                }
+
+                if (questionData.textBox) {
+                    const textBoxDiv = document.createElement('div');
+                    textBoxDiv.className = 'text-box';
+                    textBoxDiv.style.cssText = `
+                        max-width: 90%;
+                        margin: 15px auto;
+                        padding: 15px;
+                        background-color: white;
+                        border: 1px solid #cacaca;
+                        line-height: 1.5;
+                    `;
+                    textBoxDiv.innerHTML = questionData.textBox;
+                    questionContent.appendChild(textBoxDiv);
+                }
+
+                if (questionData.textBox2) {
+                    const textBox2Div = document.createElement('div');
+                    textBox2Div.className = 'text-box-2';
+                    textBox2Div.style.cssText = `
+                        max-width: 90%;
+                        margin: 15px auto;
+                        padding: 15px;
+                        display: flex;
+                        justify-content: center;
+                        align-items: center;
+                        text-align: center;
+                        background-color: white;
+                        border: 1px solid #cacaca;
+                        line-height: 1.5;
+                    `;
+                    textBox2Div.innerHTML = questionData.textBox2;
+                    questionContent.appendChild(textBox2Div);
+                }
+
+                if (questionData.image) {
+                    const questionImage = document.createElement('img');
+                    questionImage.src = questionData.image;
+                    questionImage.style.cssText = `
+                        display: block;
+                        max-width: 80%;
+                        height: auto;
+                        margin: 20px auto;
+                        border-radius: 8px;
+                        cursor: pointer;
+                        transition: transform 0.2s;
+                        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+                    `;
+                    questionImage.onclick = (e) => {
+                        e.stopPropagation();
+                        e.preventDefault();
+                        bukaZoom(questionData.image);
+                    };
+                    questionContent.appendChild(questionImage);
+                }
+
+                if (questionData.audio) {
+                    questionContent.appendChild(createAudioPlayer(questionData.audio, i.toString(), 'Play Question Audio'));
+                }
+
+                questionDiv.appendChild(questionContent);
+
+                const optionsContainer = document.createElement('div');
+                optionsContainer.className = 'review-options';
+                optionsContainer.style.cssText = `
+                    margin-top: 20px;
+                `;
+
+                const options = questionData.options || ["Option 1", "Option 2", "Option 3", "Option 4"];
+                const correctAnswerIndex = questionData.correctAnswer || 0;
+                const userAnswerIndex = userAnswers[i] ? parseInt(userAnswers[i]) - 1 : -1;
+
+                for (let j = 0; j < options.length; j++) {
+                    const optionDiv = document.createElement('div');
+                    optionDiv.className = 'review-option';
+                    optionDiv.style.cssText = `
+                        display: flex;
+                        align-items: center;
+                        padding: 12px 15px;
+                        margin-bottom: 8px;
+                        border-radius: 6px;
+                        border: 1px solid #ddd;
+                        transition: all 0.2s;
+                    `;
+
+                    if (j === correctAnswerIndex) {
+                        optionDiv.style.cssText += `
+                            border: 1px solid rgba(0, 0, 0, 0.1);
+                        `;
+                        optionDiv.classList.add('correct');
+                    }
+                    if (j === userAnswerIndex) {
+                        optionDiv.style.cssText += `
+                            background-color: #FFEBEE;
+                        `;
+                        optionDiv.classList.add('user-selected');
+                    }
+                    if (j === correctAnswerIndex && j === userAnswerIndex) {
+                        optionDiv.style.cssText += `
+                            background-color: #E8F5E9;
+                        `;
+                    }
+
+                    const optionNumber = document.createElement('div');
+                    optionNumber.className = 'review-option-number';
+                    optionNumber.style.cssText = `
+                        width: 28px;
+                        height: 28px;
+                        border-radius: 50%;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        margin-right: 12px;
+                        font-weight: bold;
+                        background-color: #f5f5f5;
+                    `;
+
+                    if (optionDiv.classList.contains('correct')) {
+                        optionNumber.style.cssText += `
+                            background-color: #4CAF50;
+                            color: white;
+                        `;
+                    }
+                    if (optionDiv.classList.contains('user-selected') && !optionDiv.classList.contains('correct')) {
+                        optionNumber.style.cssText += `
+                            background-color: #f44336;
+                            color: white;
+                        `;
+                    }
+
+                    optionNumber.textContent = j + 1;
+                    optionDiv.appendChild(optionNumber);
+
+                    const optionContent = document.createElement('div');
+                    optionContent.style.cssText = `
+                        flex-grow: 1;
+                    `;
+
+                    if (typeof options[j] === 'object' && options[j] !== null && options[j].type) {
+                        switch (options[j].type) {
+                            case 'image':
+                                const optionImage = document.createElement('img');
+                                optionImage.src = options[j].value;
+                                optionImage.style.cssText = `
+                                    max-width: 200px;
+                                    max-height: 120px;
+                                    border-radius: 6px;
+                                    cursor: pointer;
+                                    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+                                    transition: transform 0.2s;
+                                `;
+                                optionImage.onmouseover = () => optionImage.style.transform = 'scale(1.02)';
+                                optionImage.onmouseout = () => optionImage.style.transform = 'none';
+                                optionImage.onclick = (e) => {
+                                    e.stopPropagation();
+                                    e.preventDefault();
+                                    bukaZoom(options[j].value);
+                                };
+                                optionContent.appendChild(optionImage);
+                                break;
+
+                            case 'audio':
+                                const audioContainer = createAudioPlayer(options[j].value, `${i}-${j}`, `Play Option ${j + 1} Audio`);
+                                optionContent.appendChild(audioContainer);
+                                break;
+
+                            default:
+                                optionContent.innerHTML = options[j].value || '';
+                        }
+                    } else {
+                        optionContent.innerHTML = options[j] || '';
+                    }
+
+                    optionDiv.appendChild(optionContent);
+                    optionsContainer.appendChild(optionDiv);
+                }
+
+                questionDiv.appendChild(optionsContainer);
+                container.appendChild(questionDiv);
+            }
+
+            const closeBtnContainer = document.createElement('div');
+            closeBtnContainer.style.cssText = `
+                display: flex;
+                justify-content: center;
+                margin-top: 40px;
+                margin-bottom: 30px;
+            `;
+
+            const closeBtn = document.createElement('button');
+            closeBtn.textContent = 'Close';
+            closeBtn.style.cssText = `
+                padding: 12px 24px;
+                background-color: #6eb0f1;
+                color: white;
+                border: none;
+                border-radius: 6px;
+                cursor: pointer;
+                font-size: 16px;
+                font-weight: bold;
+                transition: background-color 0.2s;
+            `;
+            closeBtn.onmouseover = () => closeBtn.style.backgroundColor = '#5a9bd5';
+            closeBtn.onmouseout = () => closeBtn.style.backgroundColor = '#6eb0f1';
+            closeBtn.addEventListener('click', () => {
+                window.location.replace('index.html');
+            });
+
+            closeBtnContainer.appendChild(closeBtn);
+            container.appendChild(closeBtnContainer);
+            reviewOverlay.appendChild(container);
+            document.body.appendChild(reviewOverlay);
+        }
+
+        function createAudioPlayer(audioSrc, id, labelText) {
+            const audioContainer = document.createElement('div');
+            audioContainer.style.width = '100%';
+            audioContainer.style.marginTop = '10px';
+
+            const audioPlayer = document.createElement('div');
+            audioPlayer.style.display = 'flex';
+            audioPlayer.style.alignItems = 'center';
+            audioPlayer.style.gap = '10px';
+
+            const audioBtn = document.createElement('button');
+            audioBtn.className = 'review-audio-btn';
+            audioBtn.onclick = () => playReviewAudio(audioSrc, audioBtn);
+
+            const audioIcon = document.createElement('img');
+            audioIcon.src = 'play-icon.png';
+            audioIcon.alt = 'Play';
+            audioIcon.style.width = '60px';
+            audioIcon.style.height = '60px';
+            audioBtn.appendChild(audioIcon);
+
+            const audioLabel = document.createElement('span');
+            audioLabel.textContent = labelText;
+            audioLabel.style.fontSize = '14px';
+
+            audioPlayer.appendChild(audioBtn);
+            audioPlayer.appendChild(audioLabel);
+            audioContainer.appendChild(audioPlayer);
+
+            const transcriptId = id.includes('-') ? id : `${id}`;
+
+            console.log(`Mencari transcript untuk ID: ${transcriptId}`);
+            console.log('Data transcript tersedia:', audioTranscripts);
+
+            if (audioTranscripts && audioTranscripts[transcriptId]) {
+                const transcript = document.createElement('div');
+                transcript.className = 'audio-transcript';
+                transcript.innerHTML = audioTranscripts[transcriptId];
+                audioContainer.appendChild(transcript);
+            } else {
+                console.warn(`Transcript tidak ditemukan untuk ID: ${transcriptId}`);
+            }
+
+            return audioContainer;
+        }
+
+        function playAudio(questionId, audioSrc) {
+            const playIcon = document.getElementById(`play-icon-${questionId}`);
+
+            if (audioPlayCounts[questionId] >= 2) {
+                playIcon.style.pointerEvents = 'none';
+                playIcon.style.opacity = '0.5';
+                return;
+            }
+
+            if (currentAudio) {
+                currentAudio.pause();
+                currentAudio = null;
+            }
+
+            audioPlayCounts[questionId] = (audioPlayCounts[questionId] || 0) + 1;
+            currentAudio = new Audio(audioSrc);
+
+            currentAudio.onplay = () => {
+                playIcon.src = "pause-icon.png";
+                playIcon.alt = "Pause";
+                playIcon.classList.add("playing");
+            };
+
+            currentAudio.onpause = () => {
+                playIcon.src = "play-icon.png";
+                playIcon.alt = "Play";
+                playIcon.classList.remove("playing");
+            };
+
+            currentAudio.onended = () => {
+                playIcon.src = "play-icon.png";
+                playIcon.alt = "Play";
+                playIcon.classList.remove("playing");
+
+                if (audioPlayCounts[questionId] >= 2) {
+                    playIcon.style.pointerEvents = 'none';
+                    playIcon.style.opacity = '0.5';
+                }
+            };
+
+            currentAudio.play();
+        }
+
+        function playJawabanAudio(questionId, optionIndex, audioSrc) {
+            if (jawabanAudioPlayCounts[`${questionId}-${optionIndex}`] >= 2) return;
+            stopAllAudio();
+
+            jawabanAudioPlayCounts[`${questionId}-${optionIndex}`] = (jawabanAudioPlayCounts[`${questionId}-${optionIndex}`] || 0) + 1;
+            currentAudio = new Audio(audioSrc);
+            const playIcon = document.getElementById(`jawaban-play-icon-${questionId}-${optionIndex}`);
+            const audioBtn = playIcon.parentElement;
+
+            currentAudio.onplay = () => {
+                playIcon.src = "pause-icon.png";
+                playIcon.alt = "Pause";
+            };
+
+            currentAudio.onpause = () => {
+                playIcon.src = "play-icon.png";
+                playIcon.alt = "Play";
+            };
+
+            currentAudio.onended = () => {
+                playIcon.src = "play-icon.png";
+                playIcon.alt = "Play";
+                if (jawabanAudioPlayCounts[`${questionId}-${optionIndex}`] >= 2) audioBtn.disabled = true;
+            };
+
+            currentAudio.play();
+        }
+
+        function stopAllAudio() {
+            if (currentAudio) {
+                currentAudio.pause();
+                currentAudio = null;
+            }
+            document.querySelectorAll('[id^="jawaban-play-icon-"]').forEach(icon => {
+                icon.src = "play-icon.png";
+                icon.alt = "Play";
+            });
+        }
+
+        function playReviewAudio(audioSrc, button) {
+            const audioIcon = button.querySelector('img');
+
+            if (currentReviewAudio && currentReviewAudio.src.endsWith(audioSrc)) {
+                if (!currentReviewAudio.paused) {
+                    currentReviewAudio.pause();
+                    audioIcon.src = 'play-icon.png';
+                    audioIcon.alt = 'Play';
+                    return;
+                } else {
+                    currentReviewAudio.play();
+                    audioIcon.src = 'pause-icon.png';
+                    audioIcon.alt = 'Pause';
+                    return;
+                }
+            }
+
+            stopAllReviewAudio();
+            currentReviewAudio = new Audio(audioSrc);
+            currentReviewAudioButton = button;
+
+            let playerContainer = button.nextElementSibling;
+            if (!playerContainer || !playerContainer.classList.contains('audio-player-container')) {
+                playerContainer = document.createElement('div');
+                playerContainer.className = 'audio-player-container';
+                button.parentNode.insertBefore(playerContainer, button.nextSibling);
+            } else {
+                playerContainer.innerHTML = '';
+            }
+
+            const progressContainer = document.createElement('div');
+            progressContainer.className = 'progress-container';
+            const progressBar = document.createElement('div');
+            progressBar.className = 'progress-bar';
+            progressContainer.appendChild(progressBar);
+
+            const timeContainer = document.createElement('div');
+            timeContainer.className = 'time-container';
+
+            currentTimeDisplay = document.createElement('span');
+            currentTimeDisplay.className = 'current-time';
+            currentTimeDisplay.textContent = '0:00';
+
+            durationDisplay = document.createElement('span');
+            durationDisplay.className = 'duration';
+            durationDisplay.textContent = '0:00';
+
+            timeContainer.appendChild(currentTimeDisplay);
+            timeContainer.appendChild(document.createTextNode(' / '));
+            timeContainer.appendChild(durationDisplay);
+
+            playerContainer.appendChild(progressContainer);
+            playerContainer.appendChild(timeContainer);
+            currentProgressContainer = progressContainer;
+
+            const formatTime = (seconds) => {
+                const mins = Math.floor(seconds / 60);
+                const secs = Math.floor(seconds % 60);
+                return `${mins}:${secs < 10 ? '0' : ''}${secs}`;
+            };
+
+            currentReviewAudio.addEventListener('loadedmetadata', () => {
+                durationDisplay.textContent = formatTime(currentReviewAudio.duration);
+            });
+
+            const updateProgress = () => {
+                if (currentReviewAudio && progressBar) {
+                    const progress = (currentReviewAudio.currentTime / currentReviewAudio.duration) * 100;
+                    progressBar.style.width = progress + '%';
+                    currentTimeDisplay.textContent = formatTime(currentReviewAudio.currentTime);
+                }
+            };
+
+            progressContainer.addEventListener('click', (e) => {
+                if (!currentReviewAudio) return;
+                const rect = progressContainer.getBoundingClientRect();
+                const clickPosition = e.clientX - rect.left;
+                const containerWidth = rect.width;
+                const seekPercentage = Math.min(Math.max(clickPosition / containerWidth, 0), 1);
+                currentReviewAudio.currentTime = seekPercentage * currentReviewAudio.duration;
+                updateProgress();
+            });
+
+            currentReviewAudio.addEventListener('timeupdate', updateProgress);
+            currentReviewAudio.addEventListener('ended', resetAudioPlayer);
+
+            currentReviewAudio.onplay = () => {
+                audioIcon.src = 'pause-icon.png';
+                audioIcon.alt = 'Pause';
+            };
+
+            currentReviewAudio.onpause = () => {
+                audioIcon.src = 'play-icon.png';
+                audioIcon.alt = 'Play';
+            };
+
+            currentReviewAudio.play();
+        }
+
+        function resetAudioPlayer() {
+            if (currentReviewAudioButton) {
+                const icon = currentReviewAudioButton.querySelector('img');
+                icon.src = 'play-icon.png';
+                icon.alt = 'Play';
+            }
+            if (currentProgressContainer) {
+                const progressBar = currentProgressContainer.querySelector('.progress-bar');
+                if (progressBar) progressBar.style.width = '0%';
+            }
+            if (currentTimeDisplay) currentTimeDisplay.textContent = '0:00';
+            currentReviewAudio = null;
+            currentReviewAudioButton = null;
+            currentProgressContainer = null;
+            currentTimeDisplay = null;
+            durationDisplay = null;
+        }
+
+        function stopAllReviewAudio() {
+            if (currentReviewAudio) {
+                currentReviewAudio.pause();
+                resetAudioPlayer();
+            }
+        }
+
+        function startTimer() {
+            if (timerInterval) clearInterval(timerInterval);
+            timerInterval = setInterval(() => {
+                timeLeft--;
+                updateTimerDisplay();
+                if (timeLeft <= 0) {
+                    clearInterval(timerInterval);
+                    timeUp();
+                }
+            }, 1000);
+        }
+
+        function updateTimerDisplay() {
+            const minutes = Math.floor(timeLeft / 60);
+            const seconds = timeLeft % 60;
+            timerDisplay.textContent = `${minutes.toString().padStart(2, '0')} : ${seconds.toString().padStart(2, '0')}`;
+
+            if (timeLeft <= 5 * 60 && !hasShownFiveMinuteWarning) {
+                showTimeWarning();
+                hasShownFiveMinuteWarning = true;
+            }
+
+            if (timeLeft < 5 * 60) {
+                timerDisplay.style.color = '#f44336';
+                timerDisplay.style.fontWeight = 'bold';
+            }
+        }
+
+        function showTimeWarning() {
+            const notification = document.createElement('div');
+            notification.style.cssText = `
+                position: fixed;
+                top: 20px;
+                left: 50%;
+                transform: translateX(-50%);
+                background-color: white;
+                color: black;
+                padding: 15px 25px;
+                border-radius: 5px;
+                box-shadow: 0 6px 10px rgba(0,0,0,0.8);
+                z-index: 100000;
+                animation: fadeIn 0.5s;
+            `;
+            notification.textContent = 'Peringatan: Waktu tersisa 5 menit!';
+
+            const style = document.createElement('style');
+            style.textContent = `
+                @keyframes fadeIn {
+                    from { opacity: 0; top: 0; }
+                    to { opacity: 1; top: 20px; }
+                }
+                @keyframes fadeOut {
+                    from { opacity: 1; top: 20px; }
+                    to { opacity: 0; top: 0; }
+                }
+            `;
+            document.head.appendChild(style);
+            document.body.appendChild(notification);
+
+            setTimeout(() => {
+                notification.style.animation = 'fadeOut 0.5s';
+                setTimeout(() => {
+                    document.body.removeChild(notification);
+                    document.head.removeChild(style);
+                }, 500);
+            }, 5000);
+        }
+
+        function timeUp() {
+            clearInterval(timerInterval);
+
+            const timeUpMessage = document.createElement('div');
+            timeUpMessage.style.cssText = `
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background-color: rgba(0,0,0,0.8);
+                color: white;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                font-size: 24px;
+                z-index: 100000;
+            `;
+            timeUpMessage.textContent = 'Waktu sudah habis! Ujian akan dinilai sekarang';
+            document.body.appendChild(timeUpMessage);
+
+            setTimeout(() => {
+                document.body.removeChild(timeUpMessage);
+                showQuizResults();
+            }, 2000);
+        }
+
+        function stopTimer() {
+            clearInterval(timerInterval);
+        }
+
+        function calculateSectionScore(start, end) {
+            let sectionScore = 0;
+            for (let i = start; i <= end; i++) {
+                if (userAnswers[i] && userAnswers[i] === correctAnswers[i]) {
+                    sectionScore++;
+                }
+            }
+            return sectionScore;
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            loadQuizData();
+            loadAudioTranscripts();
+        });
+    </script>
+</body>
+
+</html>
